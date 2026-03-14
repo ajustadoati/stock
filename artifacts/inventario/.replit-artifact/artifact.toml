@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Control de Inventario"
+version = "1.0.0"
+id = "artifacts/inventario"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+localPort = 20532
+name = "web"
+paths = ["/"]
+
+[services.development]
+run = "pnpm --filter @workspace/inventario run dev"
+
+[services.env]
+PORT = "20532"
+BASE_PATH = "/"
+
+[services.production]
+build = ["pnpm", "--filter", "@workspace/inventario", "run", "build"]
+publicDir = "artifacts/inventario/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"

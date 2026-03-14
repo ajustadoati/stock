@@ -1,0 +1,11 @@
+packages:
+  "react-hook-form": "Required for forms with validation"
+  "@hookform/resolvers": "Zod resolver for react-hook-form"
+  "zod": "Schema validation for forms"
+  "date-fns": "For formatting dates in movements history"
+  "lucide-react": "Icons (should be installed but adding just in case)"
+
+images: []
+
+notes:
+  - "Using API generated hooks from @workspace/api-client-react"
