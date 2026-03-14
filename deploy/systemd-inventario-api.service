@@ -1,0 +1,18 @@
+[Unit]
+Description=Inventario API (Express)
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+Group=deploy
+WorkingDirectory=/opt/inventario/artifacts/api-server
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/inventario/api.env
+ExecStart=/usr/bin/node /opt/inventario/artifacts/api-server/dist/index.cjs
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
