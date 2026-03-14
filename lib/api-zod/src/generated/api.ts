@@ -218,3 +218,143 @@ export const GetDashboardResponse = zod.object({
   totalEntradasHoy: zod.number(),
   totalSalidasHoy: zod.number(),
 });
+
+/**
+ * @summary List all production templates
+ */
+export const ListTemplatesResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  type: zod.enum(["puerta", "ventana", "otro"]),
+  description: zod.string().nullish(),
+  width: zod.number().nullish(),
+  height: zod.number().nullish(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      templateId: zod.number(),
+      productId: zod.number(),
+      productName: zod.string(),
+      categoryName: zod.string(),
+      unit: zod.string(),
+      quantity: zod.number(),
+      notes: zod.string().nullish(),
+    }),
+  ),
+  createdAt: zod.date(),
+});
+export const ListTemplatesResponse = zod.array(ListTemplatesResponseItem);
+
+/**
+ * @summary Create a production template
+ */
+export const CreateTemplateBody = zod.object({
+  name: zod.string(),
+  type: zod.enum(["puerta", "ventana", "otro"]),
+  description: zod.string().nullish(),
+  width: zod.number().nullish(),
+  height: zod.number().nullish(),
+  items: zod.array(
+    zod.object({
+      productId: zod.number(),
+      quantity: zod.number(),
+      notes: zod.string().nullish(),
+    }),
+  ),
+});
+
+/**
+ * @summary Get a template by ID
+ */
+export const GetTemplateParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const GetTemplateResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  type: zod.enum(["puerta", "ventana", "otro"]),
+  description: zod.string().nullish(),
+  width: zod.number().nullish(),
+  height: zod.number().nullish(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      templateId: zod.number(),
+      productId: zod.number(),
+      productName: zod.string(),
+      categoryName: zod.string(),
+      unit: zod.string(),
+      quantity: zod.number(),
+      notes: zod.string().nullish(),
+    }),
+  ),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Update a template
+ */
+export const UpdateTemplateParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateTemplateBody = zod.object({
+  name: zod.string(),
+  type: zod.enum(["puerta", "ventana", "otro"]),
+  description: zod.string().nullish(),
+  width: zod.number().nullish(),
+  height: zod.number().nullish(),
+  items: zod.array(
+    zod.object({
+      productId: zod.number(),
+      quantity: zod.number(),
+      notes: zod.string().nullish(),
+    }),
+  ),
+});
+
+export const UpdateTemplateResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  type: zod.enum(["puerta", "ventana", "otro"]),
+  description: zod.string().nullish(),
+  width: zod.number().nullish(),
+  height: zod.number().nullish(),
+  items: zod.array(
+    zod.object({
+      id: zod.number(),
+      templateId: zod.number(),
+      productId: zod.number(),
+      productName: zod.string(),
+      categoryName: zod.string(),
+      unit: zod.string(),
+      quantity: zod.number(),
+      notes: zod.string().nullish(),
+    }),
+  ),
+  createdAt: zod.date(),
+});
+
+/**
+ * @summary Delete a template
+ */
+export const DeleteTemplateParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const DeleteTemplateResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
+ * @summary Register production of units using a template
+ */
+export const ProduceTemplateParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const ProduceTemplateBody = zod.object({
+  quantity: zod.number(),
+  notes: zod.string().nullish(),
+});

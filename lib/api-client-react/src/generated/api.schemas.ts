@@ -93,6 +93,79 @@ export interface DeleteResult {
   success: boolean;
 }
 
+export interface TemplateItem {
+  id: number;
+  templateId: number;
+  productId: number;
+  productName: string;
+  categoryName: string;
+  unit: string;
+  quantity: number;
+  notes?: string | null;
+}
+
+export interface TemplateItemInput {
+  productId: number;
+  quantity: number;
+  notes?: string | null;
+}
+
+export type TemplateType = (typeof TemplateType)[keyof typeof TemplateType];
+
+export const TemplateType = {
+  puerta: "puerta",
+  ventana: "ventana",
+  otro: "otro",
+} as const;
+
+export interface Template {
+  id: number;
+  name: string;
+  type: TemplateType;
+  description?: string | null;
+  width?: number | null;
+  height?: number | null;
+  items: TemplateItem[];
+  createdAt: string;
+}
+
+export type CreateTemplateInputType =
+  (typeof CreateTemplateInputType)[keyof typeof CreateTemplateInputType];
+
+export const CreateTemplateInputType = {
+  puerta: "puerta",
+  ventana: "ventana",
+  otro: "otro",
+} as const;
+
+export interface CreateTemplateInput {
+  name: string;
+  type: CreateTemplateInputType;
+  description?: string | null;
+  width?: number | null;
+  height?: number | null;
+  items: TemplateItemInput[];
+}
+
+export interface ProduceTemplateInput {
+  quantity: number;
+  notes?: string | null;
+}
+
+export type ProduceTemplateResultInsufficientStockItem = {
+  productName: string;
+  required: number;
+  available: number;
+};
+
+export interface ProduceTemplateResult {
+  success: boolean;
+  templateName: string;
+  unitsProduced: number;
+  movements: Movement[];
+  insufficientStock: ProduceTemplateResultInsufficientStockItem[];
+}
+
 export type ListProductsParams = {
   categoryId?: number;
 };

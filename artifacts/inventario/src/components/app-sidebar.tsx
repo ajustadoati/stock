@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Package, LayoutDashboard, Settings2, ArrowRightLeft } from "lucide-react";
+import { Package, LayoutDashboard, Settings2, ArrowRightLeft, Layers } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,6 +16,7 @@ const navItems = [
   { title: "Panel General", url: "/", icon: LayoutDashboard },
   { title: "Inventario", url: "/inventory", icon: Package },
   { title: "Movimientos", url: "/movements", icon: ArrowRightLeft },
+  { title: "Plantillas", url: "/templates", icon: Layers },
   { title: "Categorías", url: "/categories", icon: Settings2 },
 ];
 

@@ -263,6 +263,122 @@ paths:
               schema:
                 $ref: "#/components/schemas/DashboardSummary"
 
+  /templates:
+    get:
+      operationId: listTemplates
+      tags: [templates]
+      summary: List all production templates
+      responses:
+        "200":
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Template"
+    post:
+      operationId: createTemplate
+      tags: [templates]
+      summary: Create a production template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTemplateInput"
+      responses:
+        "201":
+          description: Created template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+
+  /templates/{id}:
+    get:
+      operationId: getTemplate
+      tags: [templates]
+      summary: Get a template by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Template with items
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+    put:
+      operationId: updateTemplate
+      tags: [templates]
+      summary: Update a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateTemplateInput"
+      responses:
+        "200":
+          description: Updated template
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+    delete:
+      operationId: deleteTemplate
+      tags: [templates]
+      summary: Delete a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeleteResult"
+
+  /templates/{id}/produce:
+    post:
+      operationId: produceTemplate
+      tags: [templates]
+      summary: Register production of units using a template
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProduceTemplateInput"
+      responses:
+        "201":
+          description: Production recorded with all movements
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProduceTemplateResult"
+
 components:
   schemas:
     HealthStatus:
@@ -454,3 +570,151 @@ components:
           type: boolean
       required:
         - success
+
+    TemplateItem:
+      type: object
+      properties:
+        id:
+          type: integer
+        templateId:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        categoryName:
+          type: string
+        unit:
+          type: string
+        quantity:
+          type: number
+        notes:
+          type: string
+          nullable: true
+      required:
+        - id
+        - templateId
+        - productId
+        - productName
+        - categoryName
+        - unit
+        - quantity
+
+    TemplateItemInput:
+      type: object
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: number
+        notes:
+          type: string
+          nullable: true
+      required:
+        - productId
+        - quantity
+
+    Template:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+          enum: [puerta, ventana, otro]
+        description:
+          type: string
+          nullable: true
+        width:
+          type: number
+          nullable: true
+        height:
+          type: number
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TemplateItem"
+        createdAt:
+          type: string
+          format: date-time
+      required:
+        - id
+        - name
+        - type
+        - items
+        - createdAt
+
+    CreateTemplateInput:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [puerta, ventana, otro]
+        description:
+          type: string
+          nullable: true
+        width:
+          type: number
+          nullable: true
+        height:
+          type: number
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/TemplateItemInput"
+      required:
+        - name
+        - type
+        - items
+
+    ProduceTemplateInput:
+      type: object
+      properties:
+        quantity:
+          type: number
+        notes:
+          type: string
+          nullable: true
+      required:
+        - quantity
+
+    ProduceTemplateResult:
+      type: object
+      properties:
+        success:
+          type: boolean
+        templateName:
+          type: string
+        unitsProduced:
+          type: number
+        movements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Movement"
+        insufficientStock:
+          type: array
+          items:
+            type: object
+            properties:
+              productName:
+                type: string
+              required:
+                type: number
+              available:
+                type: number
+            required:
+              - productName
+              - required
+              - available
+      required:
+        - success
+        - templateName
+        - unitsProduced
+        - movements
+        - insufficientStock

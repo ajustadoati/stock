@@ -9,6 +9,7 @@ import Dashboard from "@/pages/dashboard";
 import Inventory from "@/pages/inventory";
 import Categories from "@/pages/categories";
 import Movements from "@/pages/movements";
+import Templates from "@/pages/templates";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -25,8 +26,9 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/inventory" component={Inventory} />
-      <Route path="/categories" component={Categories} />
       <Route path="/movements" component={Movements} />
+      <Route path="/templates" component={Templates} />
+      <Route path="/categories" component={Categories} />
       <Route component={NotFound} />
     </Switch>
   );

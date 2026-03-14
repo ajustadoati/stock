@@ -94,3 +94,37 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+### `artifacts/inventario` (`@workspace/inventario`)
+
+React + Vite frontend — AlmacénPro inventory management web app for a doors and windows manufacturing company.
+
+- Entry: `src/main.tsx`, `src/App.tsx` (wouter routing)
+- Pages: Dashboard, Inventory, Movements, Categories, Templates
+- Sidebar navigation: `src/components/app-sidebar.tsx`
+- UI: shadcn/ui components, lucide-react icons
+- API: React Query hooks from `@workspace/api-client-react`
+- Language: Spanish (all UI labels)
+- Wouter fix: pinned to 3.3.5, `use-sync-external-store` as direct dep, vite.config.ts has optimizeDeps config
+
+## AlmacénPro Features
+
+### Database Schema (lib/db/src/schema/)
+- `categories` — product categories with color coding
+- `products` — inventory items with stock tracking (currentStock, minimumStock)
+- `movements` — stock in/out history (entrada/salida)
+- `product_templates` — production templates (BOM) for doors/windows (type: puerta/ventana/otro, width, height)
+- `template_items` — materials list for each template (productId, quantity, notes)
+
+### API Endpoints
+- GET/POST/PUT/DELETE `/api/categories`
+- GET/POST/PUT/DELETE `/api/products`
+- GET/POST `/api/movements`
+- GET `/api/dashboard` — summary stats + recent movements
+- GET/POST/PUT/DELETE `/api/templates`
+- POST `/api/templates/:id/produce` — deducts all materials in a DB transaction, validates stock first
+
+### Key Implementation Notes
+- Drizzle returns numeric columns as strings — always use `parseFloat()` when returning to API
+- Template produce endpoint: validates all stock upfront, then deducts in a transaction
+- Seeded data: 5 categories (Aluminio, Vidrio, Herrajes, Selladores, Herramientas), 12 products
