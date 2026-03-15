@@ -73,10 +73,12 @@ export const DeleteCategoryResponse = zod.object({
  */
 export const ListProductsQueryParams = zod.object({
   categoryId: zod.coerce.number().optional(),
+  code: zod.coerce.string().optional(),
 });
 
 export const ListProductsResponseItem = zod.object({
   id: zod.number(),
+  code: zod.string(),
   name: zod.string(),
   description: zod.string().nullish(),
   categoryId: zod.number(),
@@ -93,6 +95,7 @@ export const ListProductsResponse = zod.array(ListProductsResponseItem);
  * @summary Create a product
  */
 export const CreateProductBody = zod.object({
+  code: zod.string(),
   name: zod.string(),
   description: zod.string().nullish(),
   categoryId: zod.number(),
@@ -110,6 +113,7 @@ export const GetProductParams = zod.object({
 
 export const GetProductResponse = zod.object({
   id: zod.number(),
+  code: zod.string(),
   name: zod.string(),
   description: zod.string().nullish(),
   categoryId: zod.number(),
@@ -129,6 +133,7 @@ export const UpdateProductParams = zod.object({
 });
 
 export const UpdateProductBody = zod.object({
+  code: zod.string(),
   name: zod.string(),
   description: zod.string().nullish(),
   categoryId: zod.number(),
@@ -139,6 +144,7 @@ export const UpdateProductBody = zod.object({
 
 export const UpdateProductResponse = zod.object({
   id: zod.number(),
+  code: zod.string(),
   name: zod.string(),
   description: zod.string().nullish(),
   categoryId: zod.number(),

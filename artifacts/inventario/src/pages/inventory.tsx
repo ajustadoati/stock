@@ -30,6 +30,7 @@ import { PackageSearch, Plus, Search, Edit2, Trash2 } from "lucide-react";
 import type { Product } from "@workspace/api-client-react/src/generated/api.schemas";
 
 const productSchema = z.object({
+  code: z.string().min(1, "El código es obligatorio"),
   name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
   description: z.string().optional(),
   categoryId: z.coerce.number().min(1, "Debes seleccionar una categoría"),
@@ -61,6 +62,7 @@ export default function Inventory() {
   const form = useForm<ProductFormValues>({
     resolver: zodResolver(productSchema),
     defaultValues: {
+      code: "",
       name: "",
       description: "",
       categoryId: 0,
@@ -70,13 +72,19 @@ export default function Inventory() {
     },
   });
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const normalizedSearch = searchTerm.trim().toLowerCase();
+  const filteredProducts = products.filter((p) => {
+    if (!normalizedSearch) return true;
+    return (
+      p.name.toLowerCase().includes(normalizedSearch) ||
+      p.code.toLowerCase().includes(normalizedSearch)
+    );
+  });
 
   const handleOpenCreate = () => {
     setEditingProduct(null);
     form.reset({
+      code: "",
       name: "", description: "", categoryId: categories[0]?.id || 0,
       unit: "pza", currentStock: 0, minimumStock: 10,
     });
@@ -86,6 +94,7 @@ export default function Inventory() {
   const handleOpenEdit = (product: Product) => {
     setEditingProduct(product);
     form.reset({
+      code: product.code,
       name: product.name,
       description: product.description || "",
       categoryId: product.categoryId,
@@ -159,7 +168,7 @@ export default function Inventory() {
             <div className="relative w-full sm:max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input 
-                placeholder="Buscar por nombre..." 
+                placeholder="Buscar por nombre o código..." 
                 className="pl-9"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -197,6 +206,7 @@ export default function Inventory() {
               <Table>
                 <TableHeader className="bg-muted/50">
                   <TableRow>
+                    <TableHead>Código</TableHead>
                     <TableHead>Nombre</TableHead>
                     <TableHead>Categoría</TableHead>
                     <TableHead className="text-right">Stock Actual</TableHead>
@@ -211,6 +221,9 @@ export default function Inventory() {
                     
                     return (
                       <TableRow key={p.id} className="hover:bg-muted/30 transition-colors">
+                        <TableCell className="font-mono text-xs text-muted-foreground">
+                          {p.code}
+                        </TableCell>
                         <TableCell>
                           <div className="font-medium">{p.name}</div>
                           {p.description && <div className="text-xs text-muted-foreground truncate max-w-[200px]">{p.description}</div>}
@@ -264,6 +277,19 @@ export default function Inventory() {
           
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 py-4">
+              <FormField
+                control={form.control}
+                name="code"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Código</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Ej. ALU-001" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="name"

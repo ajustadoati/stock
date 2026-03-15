@@ -7,6 +7,7 @@
  */
 
 export interface CreateProductInput {
+  code: string;
   name: string;
   description?: string | null;
   categoryId: number;

@@ -7,7 +7,7 @@ Este repositorio es un monorepo con:
 
 La idea es servir el frontend como archivos estaticos y hacer proxy a la API en `/api`.
 
-Requisitos del VPS (Ubuntu recomendado)
+Requisitos del VPS (Ubuntu 24.04)
 1. Dominio `stock.reclib.com` apuntando al VPS con un registro A.
 2. Usuario de despliegue con sudo (ejemplo `deploy`).
 3. PostgreSQL instalado y una base creada.
@@ -21,6 +21,19 @@ Instalacion base en el VPS
 6. `sudo corepack enable`
 7. `sudo corepack prepare pnpm@latest --activate`
 
+PostgreSQL (configuracion basica)
+1. `sudo apt install -y postgresql`
+2. `sudo systemctl enable --now postgresql`
+3. Crear base y usuario:
+4. `sudo -u postgres psql`
+5. Dentro de psql:
+```
+CREATE USER inventario_user WITH PASSWORD 'CAMBIA_ESTA_PASSWORD';
+CREATE DATABASE inventario OWNER inventario_user;
+GRANT ALL PRIVILEGES ON DATABASE inventario TO inventario_user;
+```
+6. `\q`
+
 Clonar el repo
 1. `sudo mkdir -p /opt/inventario`
 2. `sudo chown -R deploy:deploy /opt/inventario`
@@ -33,7 +46,7 @@ Variables de entorno (API)
 3. Contenido sugerido:
 ```
 PORT=3000
-DATABASE_URL=postgres://usuario:password@127.0.0.1:5432/inventario
+DATABASE_URL=postgres://inventario_user:CAMBIA_ESTA_PASSWORD@127.0.0.1:5432/inventario
 ```
 
 Systemd (API)
@@ -61,4 +74,3 @@ Migraciones de base de datos
 HTTPS (recomendado)
 1. `sudo apt install -y certbot python3-certbot-nginx`
 2. `sudo certbot --nginx -d stock.reclib.com`
-

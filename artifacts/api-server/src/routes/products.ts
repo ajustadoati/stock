@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, productsTable, categoriesTable } from "@workspace/db";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import {
   CreateProductBody,
   UpdateProductBody,
@@ -18,6 +18,7 @@ router.get("/products", async (req, res) => {
   const rows = await db
     .select({
       id: productsTable.id,
+      code: productsTable.code,
       name: productsTable.name,
       description: productsTable.description,
       categoryId: productsTable.categoryId,
@@ -30,7 +31,12 @@ router.get("/products", async (req, res) => {
     })
     .from(productsTable)
     .leftJoin(categoriesTable, eq(productsTable.categoryId, categoriesTable.id))
-    .where(query.categoryId ? eq(productsTable.categoryId, query.categoryId) : undefined)
+    .where(
+      and(
+        query.categoryId ? eq(productsTable.categoryId, query.categoryId) : undefined,
+        query.code ? eq(productsTable.code, query.code) : undefined,
+      ),
+    )
     .orderBy(productsTable.name);
 
   const products = rows.map((r) => ({
@@ -46,11 +52,24 @@ router.get("/products", async (req, res) => {
 
 router.post("/products", async (req, res) => {
   const body = CreateProductBody.parse(req.body);
-  const [product] = await db.insert(productsTable).values({
-    ...body,
-    currentStock: String(body.currentStock),
-    minimumStock: String(body.minimumStock),
-  }).returning();
+  let product;
+
+  try {
+    [product] = await db
+      .insert(productsTable)
+      .values({
+        ...body,
+        currentStock: String(body.currentStock),
+        minimumStock: String(body.minimumStock),
+      })
+      .returning();
+  } catch (error) {
+    if ((error as { code?: string }).code === "23505") {
+      res.status(409).json({ error: "Product code already exists" });
+      return;
+    }
+    throw error;
+  }
 
   const [cat] = await db.select().from(categoriesTable).where(eq(categoriesTable.id, product.categoryId));
 
@@ -68,6 +87,7 @@ router.get("/products/:id", async (req, res) => {
   const rows = await db
     .select({
       id: productsTable.id,
+      code: productsTable.code,
       name: productsTable.name,
       description: productsTable.description,
       categoryId: productsTable.categoryId,
@@ -100,15 +120,25 @@ router.get("/products/:id", async (req, res) => {
 router.put("/products/:id", async (req, res) => {
   const { id } = UpdateProductParams.parse(req.params);
   const body = UpdateProductBody.parse(req.body);
-  const [product] = await db
-    .update(productsTable)
-    .set({
-      ...body,
-      currentStock: String(body.currentStock),
-      minimumStock: String(body.minimumStock),
-    })
-    .where(eq(productsTable.id, id))
-    .returning();
+  let product;
+
+  try {
+    [product] = await db
+      .update(productsTable)
+      .set({
+        ...body,
+        currentStock: String(body.currentStock),
+        minimumStock: String(body.minimumStock),
+      })
+      .where(eq(productsTable.id, id))
+      .returning();
+  } catch (error) {
+    if ((error as { code?: string }).code === "23505") {
+      res.status(409).json({ error: "Product code already exists" });
+      return;
+    }
+    throw error;
+  }
 
   if (!product) {
     res.status(404).json({ error: "Product not found" });

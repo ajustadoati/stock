@@ -8,4 +8,5 @@
 
 export type ListProductsParams = {
   categoryId?: number;
+  code?: string;
 };

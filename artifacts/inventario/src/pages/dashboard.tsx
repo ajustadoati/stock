@@ -28,6 +28,8 @@ export default function Dashboard() {
     );
   }
 
+  const recentMovements = dashboard.recentMovements ?? [];
+
   return (
     <div className="p-6 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
@@ -113,14 +115,14 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent className="flex-1">
-            {dashboard.recentMovements.length === 0 ? (
+            {recentMovements.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <ArrowRightLeft className="w-12 h-12 text-muted/50 mb-3" />
                 <p className="text-muted-foreground">No hay movimientos recientes</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {dashboard.recentMovements.map((mov) => (
+                {recentMovements.map((mov) => (
                   <div key={mov.id} className="flex items-center justify-between border-b border-border/50 pb-4 last:border-0 last:pb-0">
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center ${mov.type === 'entrada' ? 'bg-emerald-500/15' : 'bg-amber-500/15'}`}>

@@ -3,7 +3,7 @@ name: Deploy VPS
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
@@ -20,7 +20,7 @@ jobs:
             set -e
             cd /opt/inventario
             git fetch origin
-            git checkout master
+            git checkout main
             git pull --ff-only
             corepack enable
             corepack prepare pnpm@latest --activate
@@ -29,4 +29,3 @@ jobs:
             pnpm --filter @workspace/api-server run build
             sudo systemctl restart inventario-api
             sudo systemctl reload nginx
-

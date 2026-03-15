@@ -115,6 +115,11 @@ paths:
           required: false
           schema:
             type: integer
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: List of products
@@ -429,6 +434,8 @@ components:
       properties:
         id:
           type: integer
+        code:
+          type: string
         name:
           type: string
         description:
@@ -451,6 +458,7 @@ components:
           format: date-time
       required:
         - id
+        - code
         - name
         - categoryId
         - categoryName
@@ -463,6 +471,8 @@ components:
     CreateProductInput:
       type: object
       properties:
+        code:
+          type: string
         name:
           type: string
         description:
@@ -477,6 +487,7 @@ components:
         minimumStock:
           type: number
       required:
+        - code
         - name
         - categoryId
         - unit

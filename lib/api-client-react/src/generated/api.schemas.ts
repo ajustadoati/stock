@@ -25,6 +25,7 @@ export interface CreateCategoryInput {
 
 export interface Product {
   id: number;
+  code: string;
   name: string;
   description?: string | null;
   categoryId: number;
@@ -37,6 +38,7 @@ export interface Product {
 }
 
 export interface CreateProductInput {
+  code: string;
   name: string;
   description?: string | null;
   categoryId: number;
@@ -168,6 +170,7 @@ export interface ProduceTemplateResult {
 
 export type ListProductsParams = {
   categoryId?: number;
+  code?: string;
 };
 
 export type ListMovementsParams = {
