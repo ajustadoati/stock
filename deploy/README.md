@@ -60,16 +60,21 @@ Nginx (frontend + proxy)
 3. `sudo nginx -t`
 4. `sudo systemctl reload nginx`
 
-Primer build y despliegue manual
+Deploy recomendado (un comando)
 1. `cd /opt/inventario`
+2. `chmod +x deploy/deploy.sh`
+3. `DATABASE_URL=postgres://reclib:Reclib-pro@127.0.0.1:5432/stocks bash deploy/deploy.sh`
+
+El script hace en orden:
+1. `git pull` (rama `main`)
 2. `pnpm install --frozen-lockfile`
-3. `BASE_PATH=/ PORT=5173 pnpm --filter @workspace/inventario run build`
-4. `pnpm --filter @workspace/api-server run build`
-5. `sudo systemctl restart inventario-api`
+3. `drizzle push` (`lib/db`)
+4. build frontend y backend
+5. reinicio de `stocks-api` y `nginx`
 
 Migraciones de base de datos
 1. `cd /opt/inventario`
-2. `DATABASE_URL=postgres://... pnpm --filter @workspace/db run push`
+2. `DATABASE_URL=postgres://... pnpm --filter ./lib/db run push`
 
 HTTPS (recomendado)
 1. `sudo apt install -y certbot python3-certbot-nginx`
