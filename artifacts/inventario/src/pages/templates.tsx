@@ -22,9 +22,19 @@ import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Layers, Plus, Search, Edit2, Trash2, Box, Info, Wrench, AlertCircle } from "lucide-react";
+import { Layers, Plus, Search, Edit2, Trash2, Box, Info, Wrench, AlertCircle, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { Template, Product } from "@workspace/api-client-react/src/generated/api.schemas";
 
 const templateItemSchema = z.object({
@@ -55,6 +65,7 @@ export default function Templates() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
+  const [openMaterialPickerId, setOpenMaterialPickerId] = useState<string | null>(null);
   
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -108,6 +119,7 @@ export default function Templates() {
 
   const handleOpenCreate = () => {
     setEditingTemplate(null);
+    setOpenMaterialPickerId(null);
     form.reset({
       name: "", type: "puerta", description: "", width: undefined, height: undefined, items: []
     });
@@ -116,6 +128,7 @@ export default function Templates() {
 
   const handleOpenEdit = (template: Template) => {
     setEditingTemplate(template);
+    setOpenMaterialPickerId(null);
     form.reset({
       name: template.name,
       type: template.type,
@@ -496,23 +509,73 @@ export default function Templates() {
                                 render={({ field: selectField }) => (
                                   <FormItem className="sm:col-span-6 space-y-1">
                                     <FormLabel className="text-xs">Producto</FormLabel>
-                                    <Select 
-                                      onValueChange={selectField.onChange} 
-                                      defaultValue={selectField.value?.toString()}
+                                    <Popover
+                                      open={openMaterialPickerId === field.id}
+                                      onOpenChange={(open) =>
+                                        setOpenMaterialPickerId(open ? field.id : null)
+                                      }
                                     >
-                                      <FormControl>
-                                        <SelectTrigger className="h-9">
-                                          <SelectValue placeholder="Seleccionar producto" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        {products.map((p) => (
-                                          <SelectItem key={p.id} value={p.id.toString()}>
-                                            {p.name} ({p.unit})
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
+                                      <PopoverTrigger asChild>
+                                        <FormControl>
+                                          <Button
+                                            variant="outline"
+                                            role="combobox"
+                                            aria-expanded={openMaterialPickerId === field.id}
+                                            className={cn(
+                                              "h-9 w-full justify-between",
+                                              !selectField.value && "text-muted-foreground",
+                                            )}
+                                          >
+                                            {selectField.value
+                                              ? (() => {
+                                                  const selected = products.find(
+                                                    (product) => product.id === selectField.value,
+                                                  );
+                                                  if (!selected) return "Seleccionar producto";
+                                                  return `${selected.code} ${selected.name} (${selected.unit})`;
+                                                })()
+                                              : "Seleccionar producto"}
+                                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                          </Button>
+                                        </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent
+                                        align="start"
+                                        className="w-[var(--radix-popover-trigger-width)] p-0"
+                                      >
+                                        <Command>
+                                          <CommandInput placeholder="Buscar por código o nombre..." />
+                                          <CommandList className="h-64 overflow-y-auto overscroll-contain">
+                                            <CommandEmpty>No se encontraron productos.</CommandEmpty>
+                                            <CommandGroup>
+                                              {products.map((product) => (
+                                                <CommandItem
+                                                  key={product.id}
+                                                  value={`${product.code} ${product.name} ${product.categoryName}`}
+                                                  onSelect={() => {
+                                                    selectField.onChange(product.id);
+                                                    setOpenMaterialPickerId(null);
+                                                  }}
+                                                >
+                                                  <Check
+                                                    className={cn(
+                                                      "mr-2 h-4 w-4",
+                                                      product.id === selectField.value
+                                                        ? "opacity-100"
+                                                        : "opacity-0",
+                                                    )}
+                                                  />
+                                                  <span className="mr-2 shrink-0 font-mono text-xs text-muted-foreground">
+                                                    {product.code}
+                                                  </span>
+                                                  <span className="truncate">{product.name}</span>
+                                                </CommandItem>
+                                              ))}
+                                            </CommandGroup>
+                                          </CommandList>
+                                        </Command>
+                                      </PopoverContent>
+                                    </Popover>
                                     <FormMessage />
                                   </FormItem>
                                 )}
