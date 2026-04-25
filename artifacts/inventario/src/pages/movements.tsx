@@ -24,8 +24,18 @@ import {
   Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
 } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRightLeft, ArrowDownToLine, ArrowUpFromLine, Plus } from "lucide-react";
+import { ArrowRightLeft, ArrowDownToLine, ArrowUpFromLine, Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { ListMovementsType } from "@workspace/api-client-react/src/generated/api.schemas";
 
 const movementSchema = z.object({
@@ -42,6 +52,7 @@ export default function Movements() {
   const queryClient = useQueryClient();
   const [filterType, setFilterType] = useState<"all" | "entrada" | "salida">("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
 
   const { data: movements = [], isLoading } = useListMovements(
     filterType !== "all" ? { type: filterType as ListMovementsType } : undefined
@@ -67,6 +78,7 @@ export default function Movements() {
       quantity: 1,
       notes: "",
     });
+    setProductPickerOpen(false);
     setIsCreateOpen(true);
   };
 
@@ -219,23 +231,61 @@ export default function Movements() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Producto</FormLabel>
-                    <Select 
-                      onValueChange={field.onChange} 
-                      defaultValue={field.value ? field.value.toString() : ""}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona producto..." />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {products.map((p) => (
-                          <SelectItem key={p.id} value={p.id.toString()}>
-                            {p.name} ({p.currentStock} {p.unit} act.)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <Popover open={productPickerOpen} onOpenChange={setProductPickerOpen}>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            role="combobox"
+                            aria-expanded={productPickerOpen}
+                            className={cn("w-full justify-between", !field.value && "text-muted-foreground")}
+                          >
+                            {field.value
+                              ? (() => {
+                                  const selected = products.find((product) => product.id === field.value);
+                                  if (!selected) return "Selecciona producto...";
+                                  return `${selected.code} ${selected.name} (${selected.currentStock} ${selected.unit} act.)`;
+                                })()
+                              : "Selecciona producto..."}
+                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent
+                        align="start"
+                        className="w-[var(--radix-popover-trigger-width)] p-0"
+                      >
+                        <Command>
+                          <CommandInput placeholder="Buscar por código o nombre..." />
+                          <CommandList className="h-64 overflow-y-auto overscroll-contain">
+                            <CommandEmpty>No se encontraron productos.</CommandEmpty>
+                            <CommandGroup>
+                              {products.map((product) => (
+                                <CommandItem
+                                  key={product.id}
+                                  value={`${product.code} ${product.name} ${product.categoryName}`}
+                                  onSelect={() => {
+                                    field.onChange(product.id);
+                                    setProductPickerOpen(false);
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      product.id === field.value ? "opacity-100" : "opacity-0",
+                                    )}
+                                  />
+                                  <span className="mr-2 shrink-0 font-mono text-xs text-muted-foreground">
+                                    {product.code}
+                                  </span>
+                                  <span className="truncate">{product.name}</span>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                     <FormMessage />
                   </FormItem>
                 )}
